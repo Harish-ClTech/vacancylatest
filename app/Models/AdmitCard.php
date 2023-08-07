@@ -115,7 +115,6 @@ class AdmitCard extends Model
 
 
     // print admit card=-;'
-    "
     public static function printAdmitCard ($post)
     {
         try {
@@ -128,7 +127,7 @@ class AdmitCard extends Model
             }
             if(!empty($post['userid'])){
                 $cond .= " and userid = ".$post['userid']."";
-    "        }
+            }
             // if(!empty($post['degid'])){
             //     $cond .= " and dg.id = ".$post['degid']."";
             // }

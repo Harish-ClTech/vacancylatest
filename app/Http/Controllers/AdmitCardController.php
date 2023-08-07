@@ -44,7 +44,7 @@ class AdmitCardController extends Controller
     {
         try {
             $levels = DB::table('levels')->where('status','Y')->get();
-            $designations = DB::table('designations')->where('status','Y')->get();
+            $designations = DB::table('designations')->where('status','Y')->orderBy('ordernumber', 'ASC')->get();
     
             $data = [
                 'levels' => $levels,
@@ -62,17 +62,19 @@ class AdmitCardController extends Controller
     {
         try {
             $rules = [
-                'designationid' => 'required|numeric'
+                'designationid' => 'required|numeric',
+                'vacancytype' => 'required'
             ];
             $messages = [
                 'designationid.required' => 'पद छान्नुहोस् ।',
-                'designationid.numeric' => 'पद छान्नुहोस् ।'
+                'designationid.numeric' => 'पद छान्नुहोस् ।',
+                'vacancytype.required' => 'रिक्तता प्रकार छान्नुहोस् ।'
             ];
             $validation = Validator::make($request->all(), $rules, $messages);
             
-            if ($validation->fails()) {
+            if ($validation->fails()) 
                 throw new Exception ($validation->errors()->first(), 1);
-            }
+            
             $post = $request->all();
             $data = [
                 'post' => $post
@@ -92,7 +94,6 @@ class AdmitCardController extends Controller
             $post['userid'] = auth()->user()->id;
               
             $data = AdmitCard::getApplicantData($post);
-                
             $i = 0;
             $array = array();
             $filtereddata = (@$data["totalfilteredrecs"] > 0 ? $data["totalfilteredrecs"] : @$data["totalrecs"]);
@@ -100,20 +101,50 @@ class AdmitCardController extends Controller
     
             unset($data["totalfilteredrecs"]);
             unset($data["totalrecs"]);
-    
+
+            // $newArr = [];
+            // foreach($data as $row){
+            //     $newArr[$row->userid][$row->designationid][$row->isinternalvacancy] = $row;
+            // }
+
+
+            // foreach ($newArr as $userkey => $userrow) {
+            //     foreach ($userrow as $degkey=>$degval) {
+            //         foreach ($degval as $typekey=>$row) {
+            //             $array[$i]["sn"] = $i + 1;
+            //             $array[$i]["fullname"] = $typeval->fullname;
+            //             $array[$i]["labelname"] = $typeval->labelname;
+            //             $compType = (!empty($typeval->isinternalvacancy)&& $typeval->isinternalvacancy=='Y')?' (आ.प्र.) ':'';
+            //             $array[$i]["designation"] = $typeval->designation.$compType;
+            //             $array[$i]["appliedstatus"] = $typeval->appliedstatus;
+        
+            //             $action = "";
+            //             $action .= ' <a href="javascript:;" title="प्रिन्ट कार्ड" class="printAdmitCard"  data-userid="' . $typeval->userid . '" data-isinternalvacancy="'.$typeval->isinternalvacancy.'"  data-designationid="'.$typeval->designationid.'" ><i class="fa fa-print fa-xl text-danger"> </i></a>';
+            //             $array[$i]["action"] = $action;
+            //             $i++;
+            //         }
+            //     }
+            // }
+            // $totalrecs =  $i;
+            // $filtereddata = $i;
+
+            // New Added
+            $array = [];
+            $i = 0;
             foreach ($data as $row) {
                 $array[$i]["sn"] = $i + 1;
-                $array[$i]["fullname"] = $row->fullname;
+                $array[$i]["fullname"] = $row->nepalifullname;
                 $array[$i]["labelname"] = $row->labelname;
-                $array[$i]["designation"] = $row->designation;
-                $array[$i]["appliedstatus"] = $row->appliedstatus;
+                $compType = (!empty($row->isinternalvacancy)&& $row->isinternalvacancy == 'Y')?' (आ.प्र.) ':' (खुला प्र.)';
+                $array[$i]["designation"] = $row->designationtitle . $compType;
+                $array[$i]["symbolnumber"] = !empty($row->symbolnumber) ? $row->symbolnumber : '-';
 
                 $action = "";
-                $action .= ' <a href="javascript:;" title="प्रिन्ट कार्ड" class="printAdmitCard"  data-userid="' . $row->userid . '" data-designationid="'.$row->designationid.'" ><i class="fa fa-print fa-xl text-danger"> </i></a>';
+                $action .= ' <a href="javascript:;" title="प्रिन्ट कार्ड" class="printAdmitCard"  data-userid="' . $row->userid . '" data-isinternalvacancy="'.$row->isinternalvacancy.'"  data-designationid="'.$row->designationid.'" ><i class="fa fa-print fa-xl text-danger"> </i></a>';
                 $array[$i]["action"] = $action;
                 $i++;
             }
-           
+
             if (!$filtereddata) {
                 $filtereddata = 0;
             }
@@ -141,6 +172,17 @@ class AdmitCardController extends Controller
             $post = $request->all();
             $newArray = [];
             $dataArray = AdmitCard::printAdmitCard($post);  
+            $signatureSetupInfo = DB::table('signature_setups')->where(['status'=>'Y'])->first();
+            $authorizedOfficer = '';
+            $authorizedDesignation = '';
+            $authorizedSignatureSrc = '';
+            $signatureDate = '';
+            if(!empty($signatureSetupInfo)){
+                $authorizedOfficer =  $signatureSetupInfo->fullname;
+                $authorizedDesignation =  $signatureSetupInfo->designation;
+                $signatureDate =  $signatureSetupInfo->signaturedate;
+                $authorizedSignatureSrc = asset('uploads/signaturesetup').'/'.@$signatureSetupInfo->signature;
+            }
             $levelArray = [ '1'=> 'प्रथम', '2'=> 'दोश्रो', '3'=> 'तेश्रो', '4'=> 'चाैथो', '5'=> 'पाँचौं', '6'=> 'छैटौं', '7'=> 'सातौं', '8'=> 'आठौं', '9'=> 'नवौं'];  
             ini_set('memory_limit', '-1');
             ini_set('max_execution_time', 1800); 
@@ -156,7 +198,6 @@ class AdmitCardController extends Controller
                 // if(!empty($fileArray = glob( "$merged_path/*.pdf"))){
                 //     return response()->download($fileArray[0]);
                 // }
-
                 foreach ($dataArray as $value) {
                     $newArray[$value->userid]['userid']=$value->userid;
                     $newArray[$value->userid]['fullname']=$value->fullname;
@@ -173,9 +214,16 @@ class AdmitCardController extends Controller
                     $newArray[$value->userid]['registrationnumber']=$value->registrationnumber;
                     $newArray[$value->userid]['appliedstatus']=$value->appliedstatus;
                     $newArray[$value->userid]['designationid']=$value->designationid;
-                    $newArray[$value->userid]['designation']=$value->designation;
+                    $compType = (!empty($value->isinternalvacancy)&& $value->isinternalvacancy=='Y')?' (आ.प्र.) ':'';
+                    $newArray[$value->userid]['designation']=$value->designation.$compType;
                     $newArray[$value->userid]['labelname']=!empty($value->labelname)?$levelArray[$value->labelname]:'';
                     $newArray[$value->userid]['servicegroupname']=$value->servicegroupname;
+                    $newArray[$value->userid]['rollnumber']=$value->symbolnumber;
+                    $newArray[$value->userid]['examcentername']=$value->examcentername;
+                    $newArray[$value->userid]['authorizedOfficer'] = $authorizedOfficer;
+                    $newArray[$value->userid]['authorizedDesignation'] = $authorizedDesignation;
+                    $newArray[$value->userid]['authorizedSignatureSrc'] = $authorizedSignatureSrc;
+                    $newArray[$value->userid]['signatureDate'] = $signatureDate;
                     $newArray[$value->userid]['job'][$value->designation][$value->vacancynumber]= $value->jobcategoryname;
                     // $data['results'] = $newArray;
                     // $dataView['data'][] = view('admin.admitcard.printadmitcard', $data);

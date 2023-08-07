@@ -586,6 +586,9 @@ function printPdfApplicantData() {
 		url = baseUrl + '/getvacancyreport?';
 	window.location.href = url + infoData;
 }
+
+
+
 </script>
 
 

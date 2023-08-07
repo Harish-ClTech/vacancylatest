@@ -1,11 +1,20 @@
 <style>
+
+    @media print{
+        body *{
+            visibility: hidden;
+        }
+         #your-div-id *{
+            visibility: visible;
+        }
+    }
     .row_custom {
-        padding: 0px 15px;
-        margin-bottom: 15px !important;
+        /* padding: 0px 15px; */
+        /* margin-bottom: 15px !important; */
     }
 
     .row_custom .col-md-12 {
-        padding: 15px;
+        padding: 10px; 
         box-shadow: 0px 0px 5px rgb(0 0 0 / 20%);
     }
 
@@ -38,7 +47,7 @@
     <!--begin::Container-->
     <div id="kt_content_container" class="container-xxl">
         <!--begin::Card-->
-        <div class="container" style="border: 1px solid #ddd; border-radius: 5px;">
+        <div class="container" id="your-div-id" style="border: 1px solid #ddd; border-radius: 5px;">
             {{-- Personal details --}}
             <div class="row g2 mb-2 title_add">
                 <input type="hidden" value="{{@$userid}}" id="personalid" name="personalid">
@@ -122,7 +131,7 @@
            
 	    <div class="row g2 mb-2 row_custom">
                 <div class="col-md-12">
-                    <table class="w-100">
+                    <table class="w-75">
                         <tr>
                             <td><strong> नाम देवनगरिमा :</strong><span>{{ @$profile->nfirstname . ' ' . @$profile->nmiddlename . ' ' . @$profile->nlastname ?? "नाम देवनगरिमा"}}</span></td>
                             <td><strong> नाम अग्रेजि :</strong><span>{{ @$profile->efirstname . ' ' . @$profile->emiddlename . ' ' . @$profile->elastname ?? "नाम अग्रेजि"  }}</span></td>
@@ -139,7 +148,7 @@
 
             <div class="row g2 mb-2 row_custom">
                 <div class="col-md-12">
-                    <table class="w-100">
+                    <table class="w-75">
                         <tr>
                             <td><strong> नागरिकता नं :</strong><span>{{ @$profile->citizenshipnumber}}</span></td>
                             <td><strong> जारी जिल्ला :</strong><span>{{ @$profile->districtname}}</span></td>
@@ -152,7 +161,7 @@
             
             <div class="row g2 mb-2 row_custom">
                 <div class="col-md-12">
-                    <table class="w-100">
+                    <table class="w-75">
                         <tr>
                             <td><strong> जात :</strong><span>{{ @$extraDetails->cast }}</span></td>
                             <td><strong> धर्म :</strong><span>{{ @$extraDetails->religion }}</span></td>
@@ -169,7 +178,7 @@
 
             <div class="row g2 mb-2 row_custom">
                 <div class="col-md-12">
-                    <table class="w-100">
+                    <table class="w-75">
                         <tr>
                             <td><strong> बाबुको नाम :</strong><span>{{ @$profile->fatherfirstname . ' ' . @$profile->fathermiddlename . ' ' . @$profile->fatherlastname ??  "-" }}</span></td>
                             <td><strong> आमाको नाम :</strong><span>{{ @$profile->motherfirstname . ' ' . @$profile->mothermiddlename . ' ' . @$profile->motherlastname ?? "-" }}</span></td>
@@ -187,7 +196,7 @@
 
 	     <div class="row g2 mb-2 row_custom">
                 <div class="col-md-12">
-                    <table class="w-100">
+                    <table class="w-75" style="width:85% !important">
                         <tr>
                             <td><strong> प्रदेश :</strong><span>{{ @$contactDetails->provincename }}</span></td>
                             <td><strong> स्थायी जिल्ला:</strong><span>{{ @$contactDetails->districtname }}</span></td>
@@ -210,7 +219,7 @@
 	
             <div class="row g2 mb-2 row_custom">
                 <div class="col-md-12">
-                    <table class="w-100">
+                    <table class="w-75">
                         <tr>
                             <td><strong> प्रदेश :</strong><span>{{ @$contactDetails->tempprovincename }}</span></td>
                             <td><strong> स्थायी जिल्ला:</strong><span>{{ @$contactDetails->tempdistrictname }}</span></td>
@@ -229,7 +238,7 @@
 
             <div class="row g2 mb-2 row_custom">
                 <div class="col-md-12">
-                    <table class="w-100">
+                    <table class="w-75">
                         <tr>
                             <td><strong> फोन नम्बर :</strong><span>{{ @$contactDetails->tempophonenumber }}</span></td>
                             <td><strong> मोबाइल नम्बर :</strong><span>{{ @$emailphone->contactnumber }}</span></td>
@@ -248,7 +257,7 @@
 	    </div>
             <div class="row g2 mb-2 row_custom">
                 <div class="col-md-12">
-                    <table class="w-100">
+                    <table class="w-75">
                         <tr style="background: skyblue">
                             <th>कलेज/विद्यालय/संस्थाको नाम</th>
                             <th>विश्वविद्यालय / बोर्ड नाम</th>
@@ -298,7 +307,7 @@
 	    </div>
             <div class="row g2 mb-2 row_custom">
                 <div class="col-md-12">
-                    <table class="w-100">
+                    <table class="w-75">
                         <tr style="background: skyblue">
                             <th>तालिम प्रदायकको नाम</th>
                             <th>तालिमको विषय</th>
@@ -338,7 +347,7 @@
 	    </div>
             <div class="row g2 mb-2 row_custom">
                 <div class="col-md-12">
-                    <table class="w-100">
+                    <table class="w-75">
                         <tr style="background: skyblue">
                             <th>कार्यालय</th>
                             <th>कार्यालय ठेगाना</th>
@@ -388,7 +397,7 @@
 
 	     <div class="row g2 mb-2 row_custom">
                 <div class="col-md-12">
-                    <table class="w-100">
+                    <table class="w-75">
                         <tr style="background: skyblue">
                             <th>नागरिकता (अगाडि)</th>
                             <th>नागरिकता (पछाडि)</th>
@@ -586,9 +595,8 @@
             })
             }
         });
-        
+    });
 
-    })    
-    
+   
 </script>
 

@@ -411,6 +411,7 @@ class ApplicantProfileController extends Controller
     
             unset($data["totalfilteredrecs"]);
             unset($data["totalrecs"]);
+            dd($data);
             foreach ($data as $row) {
                 $array[$i]["sn"] = $i + 1 ;
                 $array[$i]["vacancynumber"] = $row->vacancynumber;

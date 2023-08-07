@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\{DB, Storage, URL};
-use App\Exports\{ApplicantDetailsExport, InsufficientPaymentReportExport, VacancyDetailExport};
+use App\Exports\{ApplicantDetailsExport, InsufficientPaymentReportExport, VacancyDetailExport, PscReportExport};
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Database\QueryException;
 use App\Models\{Applicant, Common};
@@ -12,6 +12,8 @@ use Carbon\Carbon;
 use Exception;
 use Validator;
 use PDF;
+
+ini_set('memory_limit', '-1');
 
 class ApplicantController extends Controller
 {
@@ -371,7 +373,6 @@ class ApplicantController extends Controller
         exit;
     }
 
-
     // access request
     function requestAccess (Request $request, $post = null)
     {
@@ -726,7 +727,7 @@ class ApplicantController extends Controller
     // export insufficient-payment-report
     public function exportInsufficientPaymentReport ($data)
     {     
-        $response = Excel::store(new InsufficientPaymentReportExport($data), 'exceldata/InsufficientPaymentReport.xlsx');
+        // $response = Excel::store(new InsufficientPaymentReportExport($data), 'exceldata/InsufficientPaymentReport.xlsx');
         return Excel::download(new InsufficientPaymentReportExport($data), 'InsufficientPaymentReport.xlsx');
     }
 
@@ -801,7 +802,7 @@ class ApplicantController extends Controller
                 $array[$i]["grandfatherfullname"] = $row->grandfatherfullname;
                 $birthday = $row->dateofbirthad;
                 if($birthday != "Undefined offset: 1"){
-                    $age = Carbon::parse($birthday)->diff(Carbon::now())->format('%y बर्ष');
+                    $age = Carbon::parse($birthday)->diff(Carbon::now('2023-05-04'))->format('%y बर्ष');
                     $array[$i]["age"] = $age;
                 }else{
                     $array[$i]["age"] = 'Invalid Data';
@@ -924,5 +925,72 @@ class ApplicantController extends Controller
         }
         echo json_encode(array("recordsFiltered" => @$filtereddata, "recordsTotal" => @$totalrecs, "data" => $array));
         exit;
-    }	
+    }
+
+    //PSC report
+    public function getPscReprt(Request $request){
+        return view('admin.applicant.pscindex');
+    }
+
+    public function getPscReprtData(Request $request)
+    {
+        try {
+            $post = $request->all();
+            $dataResult = Applicant::getPscReprt($post);
+
+              // excel export
+              
+            if (isset($post['type']) == 'excel' && isset($post['isexport']) == 'Y') {
+                unset($dataResult["totalfiltereddata"]);
+                unset($dataResult["totalrecs"]);
+                unset($dataResult["filtereddata"]);
+                return Excel::download(new PscReportExport($dataResult), 'PscReport.xlsx');
+            }
+            $i = 0;
+            $array = array();
+
+            // dd($dataResult);
+            if(!empty($dataResult['totalrecs'])){
+                $totalrecs = $dataResult['totalrecs'];
+                $filtereddata = $dataResult['filtereddata'];
+            } else{
+                $totalrecs = 0;
+                $filtereddata = 0;
+            } 
+
+            unset($dataResult["filtereddata"]);
+            unset($dataResult["totalrecs"]);
+            foreach ($dataResult as $row) {
+                $array[$i]["sn"] = $i + 1;
+                $array[$i]["masterid"] = $row->userid;
+                $array[$i]["symbolnumber"] = !empty($row->symbolnumber) ? $row->symbolnumber : '-';
+                $array[$i]["nepalifullname"] = $row->nepalifullname;
+                $array[$i]["englishfullname"] = $row->englishfullname;
+                $array[$i]["fatherhfullname"] = $row->fatherfullname;
+                $array[$i]["motherhfullname"] = $row->motherfullname;
+                $array[$i]["grandfatherfullname"] = $row->grandfatherfullname;
+                $array[$i]["gender"] = $row->gender;
+                $array[$i]["fulladdress"] = $row->fulladdress;
+                $array[$i]["designationstitle"] = $row->designationtitle;
+                $array[$i]["labelname"] = $row->labelname;
+                $array[$i]["jobcategory"] = $row->jobcategory;
+                $array[$i]["vacancynumber"] = $row->vacancynumber;
+                $array[$i]["isinternalvacancy"] = ($row->isinternalvacancy=='Y') ? 'आ.प्र.': 'खुला प्र.';
+                $i++;
+            }            
+        } 
+        catch (QueryException $e) {
+            $array = [];
+            $totalrecs = 0;
+            $filtereddata = 0;
+        } 
+        catch (Exception $e) {
+            $array = [];
+            $totalrecs = 0;
+            $filtereddata = 0;
+        }
+
+        echo json_encode(array("recordsFiltered" => $filtereddata, "recordsTotal" => $totalrecs, "data" =>$array));
+        exit;
+    }
 }

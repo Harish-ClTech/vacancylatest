@@ -17,6 +17,7 @@ use App\Http\Controllers\TrainingController;
 use App\Http\Controllers\VacancyController;
 use App\Http\Controllers\ApplicantController;
 use App\Http\Controllers\ManageUserController;
+use App\Http\Controllers\SignatureSetupController;
 use App\Http\Controllers\AdmitCardController;
 use App\Http\Controllers\ApplicantProfileController;
 use App\Http\Controllers\ExamCenterController;
@@ -53,7 +54,6 @@ Route::prefix('/')->group(function () {
     // =========================================End Login=======================================================
 
     Route::group(['middleware' => ['auth']], function () {
-
         // ========================================== Begin:Admit Card ======================================================
         Route::match(['get', 'post'],'/admit-card', [AdmitCardController::class, 'admitCard'])->name('admitcard');
         Route::match(['get', 'post'],'/getadmitcartusers', [AdmitCardController::class, 'getAdmitCard']);
@@ -283,6 +283,9 @@ Route::prefix('/')->group(function () {
 
         Route::any('/insufficientpaymentreport',[ApplicantController::class, 'insufficientPaymentReport'])->name('insufficientPaymentReport');
         Route::match(['get', 'post'], '/getinsufficientpaymentreport', [ApplicantController::class, 'getInsufficientPaymentReport'])->name('getInsufficientPaymentReport');
+        
+        Route::match(['get', 'post'], '/pscreport',[ApplicantController::class, 'getPscReprt'])->name('getPscReprt');
+        Route::match(['get', 'post'], '/getpscreport',[ApplicantController::class, 'getPscReprtData'])->name('getPscReprtData');
         // =========================================End Application======================================================= 
 
 	// =========================================Modified Vancacy Setup==========================================================
@@ -297,8 +300,6 @@ Route::prefix('/')->group(function () {
         Route::any('/successmessage',[ApplyJobsController::class, 'displaySuccessMessage'])->name('displaySuccessMessage');
         // =========================================End Message Display======================================================= 
 
-
-
         // ========================================= Start ApplicantProfile ====================================================================
         Route::get('/applicantprofile', [ApplicantProfileController::class, 'index'])->name('applicantprofile');
                 // Route::get('/myapplication', [ApplicantProfileController::class, 'myApplication'])->name('myapplication');
@@ -307,29 +308,39 @@ Route::prefix('/')->group(function () {
                 Route::any('/availablevacancy', [ApplicantProfileController::class, 'availableVacancy'])->name('availableVacancy');
                 Route::get('/availablevacancylist', [ApplicantProfileController::class, 'getAvailableVacancyList'])->name('getAvailableVacancyList');
      
-          // ======================================== End ApplicantProfile ==================================================================
+        // ======================================== End ApplicantProfile ==================================================================
       
         // =========================================Setup Routes====================================================================
         Route::group(['prefix'=>'setup'], function(){
         
-        Route::match(['get', 'post'], '/examcenter', [ExamCenterController::class, 'index'])->name('examcenter');
-        Route::match(['get', 'post'], '/examcenter/form', [ExamCenterController::class, 'examcCenterForm'])->name('examcenter.form');
-        Route::match(['get', 'post'], '/examcenter/assignform', [ExamCenterController::class, 'examcCenterAssignForm'])->name('examcenter.assignform');
-        Route::match(['get', 'post'], '/store/examcenter', [ExamCenterController::class, 'storeExamCenter'])->name('examcenter.store');
-        Route::match(['get', 'post'], '/getexamcenterlist', [ExamCenterController::class, 'examCenterList'])->name('examcenter.list');
-        Route::any('/examcenter/delete', [ExamCenterController::class, 'deleteExamCenter'])->name('examcenter.delete');
-        Route::post('/getsymbolnumberswithexamcenter', [ExamCenterController::class, 'getSymbolnumbersWithExamcenter'])->name('getsymbolnumberswithexamcenter');
-        Route::post('/examcenter/assignexamcenter', [ExamCenterController::class, 'assignExamCenter'])->name('examcenter.assignexamcenter');
+                Route::match(['get', 'post'], '/examcenter', [ExamCenterController::class, 'index'])->name('examcenter');
+                Route::match(['get', 'post'], '/examcenter/form', [ExamCenterController::class, 'examcCenterForm'])->name('examcenter.form');
+                Route::match(['get', 'post'], '/examcenter/assignform', [ExamCenterController::class, 'examcCenterAssignForm'])->name('examcenter.assignform');
+                Route::match(['get', 'post'], '/store/examcenter', [ExamCenterController::class, 'storeExamCenter'])->name('examcenter.store');
+                Route::match(['get', 'post'], '/getexamcenterlist', [ExamCenterController::class, 'examCenterList'])->name('examcenter.list');
+                Route::any('/examcenter/delete', [ExamCenterController::class, 'deleteExamCenter'])->name('examcenter.delete');
+                Route::post('/getsymbolnumberswithexamcenter', [ExamCenterController::class, 'getSymbolnumbersWithExamcenter'])->name('getsymbolnumberswithexamcenter');
+                Route::post('/examcenter/assignexamcenter', [ExamCenterController::class, 'assignExamCenter'])->name('examcenter.assignexamcenter');
 
-        // =========================================End ExamCenter Setup=======================================================
+                // =========================================End ExamCenter Setup=======================================================
 
-        // ========================================== Begin:Symbol Number ======================================================
-        Route::get('/symbolnumbers', [SymbolNumberController::class, 'index'])->name('symbolnumbers');
-        Route::post('/getapplicants', [SymbolNumberController::class, 'getApplicants'])->name('get_applicants');
-        Route::post('/generatesymbolnumber', [SymbolNumberController::class, 'generateSymbolNumber'])->name('generate_symbol_number');
-        Route::post('/getsymbolnumbers', [SymbolNumberController::class, 'getSymbolNumber'])->name('get_symbol_numbers');
-        // ========================================== End:Symbol Number ========================================================	
+                // ========================================== Begin:Symbol Number ======================================================
+                Route::get('/symbolnumbers', [SymbolNumberController::class, 'index'])->name('symbolnumbers');
+                Route::post('/getapplicants', [SymbolNumberController::class, 'getApplicants'])->name('get_applicants');
+                Route::post('/generatesymbolnumber', [SymbolNumberController::class, 'generateSymbolNumber'])->name('generate_symbol_number');
+                Route::post('/getsymbolnumbers', [SymbolNumberController::class, 'getSymbolNumber'])->name('get_symbol_numbers');
+                // ========================================== End:Symbol Number ========================================================	
+        
+        
+                // =========================================Signature Setup ==========================================================
+                Route::get('/signaturesetup', [SignatureSetupController::class, 'index'])->name('signaturesetup');
+                Route::post('/signaturesetup/store', [SignatureSetupController::class, 'store'])->name('signaturesetup.store');
+                Route::any('/signaturesetup/delete', [SignatureSetupController::class, 'delete'])->name('signaturesetup.delete');
+                // =========================================End Signature Setup =======================================================
+
         });
+
+
         // =========================================Setup Routes====================================================================
         
     });

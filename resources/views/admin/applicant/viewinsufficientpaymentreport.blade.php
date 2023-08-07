@@ -114,6 +114,7 @@
 	<div class="modal-dialog modal-dailog-centered mw-900px" role="document">
 		<div class="modal-content rounded">
 			<div class="modal-header pb-0 border-0 justify-content-end">
+				
 				<button type="button" id="closedmodal" class="close  pull-right" value="perviewSetupModal"
 					data-dismiss="modal">&times;</button>
 				<h4 class="modal-title"></h4>

@@ -109,7 +109,7 @@
 </div>
 
 
-<div id="assignModal" class="modal fade" role="dialog" tabindex="-1" aria-labelledby="assignModalTitle" aria-hidden="true">
+<div id="assignModal" class="modal fade" style="z-index: 99999;" role="dialog" tabindex="-1" aria-labelledby="assignModalTitle" aria-hidden="true">
 	<div class="modal-dialog modal-xl" role="document">
 		<div class="modal-content rounded">
 			<div class="modal-header pb-0 border-0 justify-content-end">

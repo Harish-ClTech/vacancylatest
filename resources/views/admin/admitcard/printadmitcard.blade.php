@@ -3,10 +3,10 @@
       <section class="sanchaya_admit_card">
             <div class="top_header">
                   <div class="card_logo">
-                        <img src="{{ asset('adminAssets/assets/images/log2.png') }}">
+                        <img src="{{ asset('adminAssets/assets/images/log_bk.png') }}">
                   </div>
                   <div class="head_txt">
-                        <h4>कर्मचारी सञ्चय कोष</h4>
+                        <h4>नागरिक लगानी कोष</h4>
                         <h5>प्रवेश - पत्र</h5>
                   </div>
                   <div class="rt_img_wrapper">
@@ -149,14 +149,16 @@
                         </div> -->
                         <div class="rt_dt">
                         <div class="txt_cntr">
-                                    <div class="signature_official">
-                                    <img class="" src="{{ asset('adminAssets/assets/images/sign.png') }}">
-                                    </div>
+                              <div class="signature_official">
+                                    @if(!empty($value['authorizedSignatureSrc']))
+                                          <img class="" src="{{ $value['authorizedSignatureSrc'] }}">
+                                    @endif
+                              </div>
                               <h5 style="font-weight: normal; margin-top: 0px; margin-bottom: 15px; line-height: 0px;">..........................................</h5>
                               <h5>जारी गने अधिकृतको </h5>
                               <h5>दस्तखत : </h5>
-                              <h5>नाम :  <span></span></h5>
-                              <h5>मिति : <span></span></h5>
+                              <h5>नाम :  <span>{{ !empty($value['authorizedOfficer'])? $value['authorizedOfficer']: ''}}</span></h5>
+                              <h5>मिति : <span>{{ !empty($value['signatureDate'])? $value['signatureDate']: ''}}</span></h5>
                         </div>
                         </div>
                   </div>

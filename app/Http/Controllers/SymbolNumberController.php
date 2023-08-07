@@ -60,24 +60,25 @@ class SymbolNumberController extends Controller
                 throw new Exception($validator->errors()->first(), 1);
             }
             $post = $request->all();
+
+            // dd($post);
             // $post['isSymbolNumber'] = 'Y';
             // $applicantSymbol = SymbolNumber::getApplicants($post);  
-            $applicants = SymbolNumber::getApplicants($post);  
+            $applicants = SymbolNumber::getApplicantSymbolNumber($post);  
+            // dd($applicants);
             $applicantWithSymbol = [];
             $applicantWithOutSymbol = [];
             foreach($applicants as $applicant){
-                if($applicant->symbolnumber == ''){
+                if($applicant->symbolnumber == '') {
                     $applicantWithOutSymbol[] = $applicant;
                 }else{
                     $applicantWithSymbol[] = $applicant;
                 }
             }
-            // dd($applicants, $applicantWithSymbol, $applicantWithOutSymbol);  
-            // $post['isSymbolNumber'] = 'N';
-            // $applicantNoSymbol = SymbolNumber::getApplicants($post);
-            // dd($applicantNoSymbol, $applicantSymbol);
-            $applicantsCount = 0;
 
+            // dd($applicantWithOutSymbol, $applicantWithSymbol);
+
+            $applicantsCount = 0;
             $array = [];
 
             // applicants with no symbol 
@@ -88,23 +89,21 @@ class SymbolNumberController extends Controller
                 $array['designation'] = $applicantWithOutSymbol[0]->designationtitle;
             }
 
+
+
             //  applicants with symbol generated
             $applicantWithSymbolCount = count($applicantWithSymbol);
             if($applicantWithSymbolCount>=1){
                 $array['applicantWithSymbolCount'] = $applicantWithSymbolCount; 
                 $totalApplicants = $applicantWithSymbolCount+$applicantWithNoSymbolCount; 
-                // if(!empty($post['showexamcenter'])){
-                //     $colsix = '<th>परिक्षाकेन्द्र</th>';
-                //     $dataColSix = $applicant->examcenter;
-                // }else{
-                //     $colsix = '<th>सिम्बोल नम्बर संख्या</th>';
-                //     $dataColSix = $applicantWithSymbolCount;
-                // }
+                $vacancyType = ($applicantWithSymbol[0]->sybvacancytype =='Y') ? 'आ.प्र.' : 'खुला प्र.';
+
                 $table ='<table class="table-bordered table-striped table-condensed cf" id="examCenterTable" width="100%">
                     <thead class="cf">
                         <tr>
                             <th>क्र.सं. </th>
                             <th>आर्थिक बर्ष</th>
+                            <th>विज्ञापन प्रकार</th>
                             <th>पद</th>
                             <th>सुरुको सिम्बोल नम्बर </th>
                             <th>अन्तिम सिम्बोल नम्बर</th>
@@ -116,6 +115,7 @@ class SymbolNumberController extends Controller
                         <tr>
                             <td>1.</td>
                             <td>'.$applicantWithSymbol[0]->fiscalyearname.'</td>
+                            <td>'.$vacancyType.'</td>
                             <td>'.$applicantWithSymbol[0]->designationtitle.'</td>
                             <td>'.$applicantWithSymbol[0]->symbolnumber.'</td>
                             <td>'.$applicantWithSymbol[$applicantWithSymbolCount-1]->symbolnumber.'</td>
@@ -128,10 +128,12 @@ class SymbolNumberController extends Controller
             }
             $this->response = $array;
 
-        } catch (QueryException $e) {
+        } 
+        catch (QueryException $e) {
             $this->type = 'error';
             $this->message = $this->queryExceptionMessage;
-        } catch(Exception $e){
+        } 
+        catch(Exception $e){
             $this->type = 'error';
             $this->message = $e->getMessage();
         }
@@ -163,21 +165,18 @@ class SymbolNumberController extends Controller
             $this->message = 'तपाईले छान्नुभएको सम्पुर्ण परिक्षार्थीको सिम्बोल नम्बर सफलतापुर्वक जेनेरेट भएको छ ।';
             DB::beginTransaction();
             $post = $request->all();
-            // $post['isSymbolNumber'] = 'N';
-            // $applicantNoSymbol = SymbolNumber::getApplicants($post);
-            // $post['isSymbolNumber'] = 'Y';
-            // $applicantSymbol = SymbolNumber::getApplicants($post);
 
-            $applicants = SymbolNumber::getApplicants($post);  
+            $applicants = SymbolNumber::getApplicantSymbolNumber($post);  
             $applicantWithSymbol = [];
             $applicantWithOutSymbol = [];
-            foreach ($applicants as $applicant) {
-                if ($applicant->symbolnumber == '') {
-                    $applicantWithOutSymbol[] = $applicant;
+            foreach ($applicants as $row) {
+                if ($row->symbolnumber == '') {
+                    $applicantWithOutSymbol[] = $row;
                 } else {
-                    $applicantWithSymbol[] = $applicant;
+                    $applicantWithSymbol[] = $row;
                 }
             }
+            // dd($applicantWithOutSymbol, $applicantWithSymbol);
 
             if (!empty($applicantWithOutSymbol)) {
                 $first = $post['levelid'];
@@ -187,13 +186,6 @@ class SymbolNumberController extends Controller
                     $second = 0;
                 }
                 $symbolNumberInsertArray = [];
-                // if(!empty($applicantWithSymbol)){
-                //     $lastSymbolNumber = $applicantWithSymbol[count($applicantWithSymbol)-1]->symbolnumber;
-                //     $startingSymbol = $lastSymbolNumber+1;
-
-                // }else{
-                //     $startingSymbol = (int)($first.$second.'0001');
-                // }
                 $startingSymbol = 1;
 
                 foreach ($applicantWithOutSymbol as $ad)
@@ -201,6 +193,7 @@ class SymbolNumberController extends Controller
                     $symbolData = [];
                     $symbolData['userid']= $ad->userid;
                     $symbolData['designationid']= $ad->designationid;
+                    $symbolData['isinternalvacancy']= $post['vacancytypeid'];
                     $symbolData['symbolnumber']= $startingSymbol;
                     $symbolData['status']= 'Y';
                     $symbolData['created_at']= now();
@@ -208,22 +201,6 @@ class SymbolNumberController extends Controller
                     $startingSymbol++;
                 }
 
-
-                // $applyDetailUpdateArray = [];
-                // if($applicantSymbol->isNotEmpty()){
-                //     $lastSymbolNumber = $applicantSymbol[count($applicantSymbol)-1]->symbolnumber;
-                //     $startingSymbol = $lastSymbolNumber+1;
-
-                // }else{
-                //     $startingSymbol = (int)($first.$second.'0001');
-                // }
-                // foreach($applicantNoSymbol as $ad){
-                //     $applydata = [];
-                //     $applydata ['id']= $ad->applydetailid;
-                //     $applydata ['symbolnumber']= $startingSymbol;
-                //     $applyDetailUpdateArray[] = $applydata;
-                //     $startingSymbol++;
-                // }
 
                 if (!empty($symbolNumberInsertArray)) {
                     if (!SymbolNumberManage::insert($symbolNumberInsertArray)) {

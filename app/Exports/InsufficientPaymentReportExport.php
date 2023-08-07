@@ -16,6 +16,7 @@ class InsufficientPaymentReportExport implements FromCollection,WithHeadings,Sho
     public function __construct($data)
     {
         $this->data =$data;
+        dd($this->data);
     }
     public function collection()
     {

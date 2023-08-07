@@ -202,16 +202,18 @@ class PreviewController extends Controller
         try{
             $post['viewAdmitCard']= $request->viewAdmitCard;
             $post['degid']= $request->degid;
-            if($post['viewAdmitCard'] !=true ){
+            $post['isinternalvacancy'] = $request->isinternalvacancy;
+            if($post['viewAdmitCard'] != true ){
                 throw new Exception('Sorry There was problem with your data.', 1);
             }
-                $post['userid'] = Auth::user()->id;
-                $results = AdmitCard::printAdmitCard($post);
-                $data=[
-                    'results'=>$results,
-                ];
+            $post['userid'] = Auth::user()->id;
+            $results = AdmitCard::printAdmitCard($post);
+            $data = [
+                'results' => $results,
+                'isinternalvacancy' => $post['isinternalvacancy']
+            ];
           
-            return view('admin.pages.preview.admitcard.admitcardHolder',$data); 
+            return view('admin.pages.preview.admitcard.admitcardHolder', $data); 
          
         }catch(QueryException $qe){
             $this->type = 'error';
@@ -224,7 +226,7 @@ class PreviewController extends Controller
     public function getAdmitCardData($post)
     {
         $newArray = [];
-        $dataArray = AdmitCard::printAdmitCard($post);                        
+        $dataArray = AdmitCard::printAdmitCard($post); 
         foreach($dataArray as $value){
             $newArray['userid']=$value->userid;
             $newArray['fullname']=$value->fullname;
@@ -242,8 +244,11 @@ class PreviewController extends Controller
             $newArray['appliedstatus']=$value->appliedstatus;
             $newArray['designationid']=$value->designationid;
             $newArray['designation']=$value->designation;
+            $newArray['isinternalvacancy']=$value->isinternalvacancy;
             $newArray['labelname']=$value->labelname;
             $newArray['servicegroupname']=$value->servicegroupname;
+            $newArray['symbolnumber']=$value->symbolnumber;
+            $newArray['examcentername']=$value->examcentername;
             $newArray['job'][$value->designation][$value->vacancynumber]= $value->jobcategoryname;
         }
         return (object)$newArray;
@@ -254,18 +259,28 @@ class PreviewController extends Controller
         try{
             $post['viewAdmitCard']= $request->viewAdmitCard;
             $post['degid']= $request->degid;
+            $post['isinternalvacancy']= $request->isinternalvacancy;
             if($post['viewAdmitCard'] !=true ){
                 throw new Exception('Sorry There was problem with your data.', 1);
             }
             $post['userid'] = Auth::user()->id;
             $data['admitCard'] = $this->getAdmitCardData($post);
+            $data['isinternalvacancy'] = $post['isinternalvacancy'];
             if(!empty($data['admitCard']->symbolnumber)){
-                $degid = $data['designationid'];
+                $degid = $data['admitCard']->designationid;
 				$data['btnContent'] ='<a href="javascript:;" id="printAdmitCardBtn" data-data="'.$degid.'" class="btn btn-danger"> <i class="fa fa-print" aria-hidden="true"></i> Print</a>';
             }else{
                 $data['btnContent'] ='<p>यो पेज Imageहरु Edit गर्ने प्रयोजनका लागि तयार पारिएको हो । यो प्रकृया सकिए पश्चात यस स्थानमा प्रवेश पत्र प्रिन्ट गर्ने Option पाउनुहुनेछ । </p>';
             }
-          
+
+
+            $signatureSetupInfo = DB::table('signature_setups')->where(['status'=>'Y'])->first();
+            $signaturerow['authorizedOfficer'] =  !empty($signatureSetupInfo->fullname)?$signatureSetupInfo->fullname:'';
+            $signaturerow['authorizedDesignation'] =  !empty($signatureSetupInfo->designation)?$signatureSetupInfo->designation:'';
+            $signaturerow['signatureDate'] =  !empty($signatureSetupInfo->signaturedate)?$signatureSetupInfo->signaturedate:'';
+            $signaturerow['authorizedSignatureSrc'] = !empty($signatureSetupInfo->signature)? asset('uploads/signaturesetup').'/'.@$signatureSetupInfo->signature:'';
+            $data['signatureSetupInfo'] = $signaturerow;
+
             return view('admin.pages.preview.admitcard.viewAdmitCard',$data); 
          
         }catch(QueryException $qe){
@@ -281,10 +296,10 @@ class PreviewController extends Controller
     {
         try{
             $post['degid'] = $request->data;
+            $post['isinternalvacancy'] = $request->vacancystatus;
             $post['userid'] = Auth::user()->id;
             $data['admitCard'] = $this->getAdmitCardData($post);
-           
-            $pdf = PDF::loadView('admin.pages.preview.admitcard.pdfAdmitCard',$data);   
+            $pdf = PDF::loadView('admin.pages.preview.admitcard.pdfAdmitCard', $data);   
             $pdf->setOption('disable-javascript', true);
             $pdf->setOption('enable-local-file-access', true);
             $pdf->setOption('orientation', 'portrait');

@@ -58,7 +58,7 @@
                               <form class="mt-3">
                                     <div class="row">
 
-                                          <div class="form-group col-md-4">
+                                          <div class="form-group col-md-3">
                                                 <label for="fiscalyearid">आर्थिक बर्ष</label>
                                                 <select id="fiscalyearid"  name="fiscalyearid" class="form-select">
                                                       <option selected>आर्थिक बर्ष छान्नुहोस्..</option>
@@ -70,20 +70,28 @@
                                                 </select>
                                           </div>
       
-                                          <div class="form-group col-md-4">
+                                          <div class="form-group col-md-3">
                                                 <label for="levelid">विज्ञापन भएको तह</label>
                                                 <select id="levelid"  name="levelid" class="form-select">
                                                       <option selected>तह छान्नुहोस्..</option>
                                                    
                                                 </select>
                                           </div>
-                                          <div class="form-group col-md-4" id="designationDiv">
+                                          <div class="form-group col-md-3" id="designationDiv">
                                                 <label for="designationid">विज्ञापन भएको पद</label>
                                                 <select id="designationid"  name="designationid" class="form-select">
                                                       <option selected>पद छान्नुहोस्..</option>
                                                    
                                                 </select>
                                           </div>
+
+                                          <div class="form-group col-md-3" id="vacancytypeDiv">
+                                                <label for="vacancytypeid">विज्ञापन प्रकार</label>
+                                                <select id="vacancytypeid"  name="vacancytypeid" class="form-select">
+                                                      <option value="N">खुला प्र.</option>
+                                                      <option value="Y">आ.प्र.</option>
+                                                </select>
+                                          </div>                                          
                                     </div>
                                     <div class="row" id="messageDiv" style="display: none; background-color: #f9e1e1; margin:0px -4px; padding: 10px 5px;">
                                           <div class="col-md-9">
@@ -129,7 +137,8 @@
                         $('#levelid').html("");
                         $('#levelid').html("<option selected>तह छान्नुहोस्..</option>");
                         $.each(response, function(key, val){
-                              $('#levelid').append("<option value='"+key+"'>"+key+"</option>");
+                              console.log(val);
+                              $('#levelid').append("<option value='"+val.id+"'>"+val.labelname+"</option>");
                         });
                   });
             });
@@ -142,6 +151,7 @@
                   $('#messageDiv').hide();
                   var levelid = $('#levelid :selected').val();
                   var fiscalyearid = $('#fiscalyearid :selected').val();
+                  var vacancytypeid = $('#vacancytypeid :selected').val();
                   var url = '{{route('getdesignations')}}';
                   var infoData = {
                         levelid:levelid,
@@ -166,11 +176,13 @@
                   var levelid = $('#levelid :selected').val();
                   var fiscalyearid = $('#fiscalyearid :selected').val();
                   var designationid = $('#designationid :selected').val();
+                  var vacancytypeid = $('#vacancytypeid :selected').val();
                   var url = '{{route('get_applicants')}}';
                   var infoData = {
                         levelid:levelid,
                         fiscalyearid:fiscalyearid,
                         designationid:designationid,
+                        vacancytypeid: vacancytypeid
                   };
                   $.post(url, infoData, function (response) {
                         var result = JSON.parse(response);
@@ -202,6 +214,7 @@
                   var levelid = $('#levelid :selected').val();
                   var fiscalyearid = $('#fiscalyearid :selected').val();
                   var designationid = $('#designationid :selected').val();
+                  var vacancytypeid = $('#vacancytypeid :selected').val();
                   var designationserial = $('#designationid :selected').data("key");
                   var url = '{{route('generate_symbol_number')}}';
                   var infoData = {
@@ -210,6 +223,7 @@
                         designationid:designationid,
                         designationserial:designationserial,
                         designationcount:designationCount,
+                        vacancytypeid:vacancytypeid
                   };
                   swal({
                         title: "के तपाई सिम्बोल नम्बर जेनेरेट गर्न चाहनुहुन्छ ? ",
@@ -234,7 +248,9 @@
 
 
             });
-
-		
+            
+            $('#vacancytypeid').on('change', function(e){
+                  $('#designationid').trigger('change');
+            });
 	</script>
 @endsection

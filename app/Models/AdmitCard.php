@@ -28,14 +28,17 @@ class AdmitCard extends Model
                 $limit = $get['iDisplayLength'];
                 $offset = $get["iDisplayStart"];
             }
-            $designation = ' ';
+            $cond = ' 1=1 ';
             $level = ' ';
 
             // if (!empty($post['designationid'])) {
             //     $designation= "and dg.id = ".$post['designationid']."";
             // }
             if (!empty($post['designationid'])) {
-                $designation= " designationid = ".$post['designationid']."";
+                $cond .= " AND designationid = ".$post['designationid']." ";
+            }
+            if (!empty($post['vacancytype'])) {
+                $cond .= " AND isinternalvacancy = '".$post['vacancytype']."' ";
             }
 
             // if (!empty($post['levelid'])) {
@@ -51,7 +54,10 @@ class AdmitCard extends Model
             }
 
             if ($get['sSearch_1'])
-                $cond .= " AND lower(fullname) like '%" . $get['sSearch_1'] . "%'";
+                $cond .= " AND nepalifullname like '%" . $get['sSearch_1'] . "%'";
+
+            if ($get['sSearch_3'])
+                $cond .= " AND lower(symbolnumber) like '%" . $get['sSearch_3'] . "%'";
 
             // $sql = "SELECT
             //             COUNT(*) OVER() AS totalrecs,
@@ -83,16 +89,16 @@ class AdmitCard extends Model
             
             $sql = "SELECT
                         *,
-                        COUNT(*) OVER() AS totalrecs FROM v_logadmintcard
+                        COUNT(*) OVER() AS totalrecs 
+                    FROM v_locasewa_reports
                     WHERE
-                        $designation 
-            ";
+                        $cond";
 
-            if ($limit > -1) {
+            if ($limit > -1) 
                 $sql = $sql . ' limit ' . $limit . ' offset ' . $offset . '';
-            }
-            // echo $sql ; exit;
+            
             $result = DB::select($sql);
+            // dd($result);
             if ($result) {
                 $ndata = $result;
                 $ndata['totalrecs'] = @$result[0]->totalrecs ? $result[0]->totalrecs : 0;
@@ -108,7 +114,8 @@ class AdmitCard extends Model
     }
 
 
-    // print admit card
+    // print admit card=-;'
+    "
     public static function printAdmitCard ($post)
     {
         try {
@@ -121,17 +128,21 @@ class AdmitCard extends Model
             }
             if(!empty($post['userid'])){
                 $cond .= " and userid = ".$post['userid']."";
-            }
+    "        }
             // if(!empty($post['degid'])){
             //     $cond .= " and dg.id = ".$post['degid']."";
             // }
             if(!empty($post['degid'])){
                 $cond .= " and designationid = ".$post['degid']."";
             }
+            if(!empty($post['isinternalvacancy'])){
+                $cond .= " and isinternalvacancy = '".$post['isinternalvacancy']."'";
+            }
             // dd($post);
             $symbolCond = ' 1=1 ';
             if(!empty($post['symbol_from']) && !empty($post['symbol_to'])){
-                $symbolCond .= " AND symbolnumber BETWEEN ".$post['symbol_from']." AND ".$post['symbol_to']." ";
+                // $symbolCond .= " AND symbolnumber BETWEEN ".$post['symbol_from']." AND ".$post['symbol_to']." ";
+                $cond .= " AND symbolnumber BETWEEN ".$post['symbol_from']." AND ".$post['symbol_to']." ORDER BY symbolnumber ASC";
             }
             
             // $sql = "SELECT
@@ -173,21 +184,25 @@ class AdmitCard extends Model
             //             ".$cond;
             
 
+            // $sql = "SELECT
+            //             ap.*,
+            //             snm.symbolnumber,
+            //             snm.examcentername,
+            //             COUNT(*) OVER() AS totalrecs 
+            //         FROM v_admincardprint as ap
+            //         LEFT JOIN 
+            //             (SELECT userid, symbolnumber, examcentername FROM symbol_number_manages WHERE ".$symbolCond.") as snm on snm.userid = ap.userid
+            //         WHERE 
+            //             ".$cond." 
+            // ";
             $sql = "SELECT
                         ap.*,
-                        snm.symbolnumber,
-                        snm.examcentername,
                         COUNT(*) OVER() AS totalrecs 
-                    FROM vf_admincardprint as ap
-                    LEFT JOIN 
-                        (SELECT userid, symbolnumber, examcentername FROM symbol_number_manages WHERE ".$symbolCond.") as snm on snm.userid = ap.userid
+                    FROM v_admitcardprint as ap
                     WHERE 
-                        ".$cond." 
-            ";
-                // echo $sql; exit;
+                        ".$cond." ";
 
             $results=DB::select($sql);
-
             return $results;
         } catch (Exception $e) {
             throw $e;

@@ -93,7 +93,8 @@
 	<div class="modal-dialog modal-dailog-centered mw-900px" role="document">
 		<div class="modal-content rounded" style="margin-top: 70px !important;">
 			<div class="modal-header pb-0 border-0 justify-content-end">
-				<button type="button" id="closedmodal" class="close  pull-right" value="perviewSetupModal"
+				<button class="btn btn-primary" id="print" onclick="">Print</button>
+				<button type="button" id="closedmodal" class="close pull-right m-0" value="perviewSetupModal"
 					data-dismiss="modal">&times;</button>
 				<h4 class="modal-title"></h4>
 			</div>
@@ -325,7 +326,7 @@ $(document).ready(function() {
 				$('#isaccessreject').hide();
 			}
 
-			if(authUserId != 4826){
+			if((authUserId != 4826) && (authUserId != 2763)){
 				if(applicantstatus == 'Rejected' || applicantstatus == 'Verified') {
 					$(".texthide").html('<span class="indicator-label"><b>'+applicantstatus+'</b></span>');
 					$('.statusaction').hide();
@@ -421,6 +422,26 @@ $(document).ready(function() {
 $(document).ready(function() {
     $('.autotext-multiple').select2();
 });
+
+// $('.modal-header #Print').off('click');
+// $('.modal-header #Print').on('click', function(e) {
+//       var divToPrint = document.getElementById("your-div-id");
+//       var newWindow = window.open('');
+//       newWindow.document.write(divToPrint.innerHTML) ;
+//       newWindow.document.close();
+//       newWindow.print();
+// });
+
+$('#print').on('click', function() {
+        window.print();
+      var divToPrint = document.getElementById("your-div-id");
+      var newWindow = window.open('', '_blank');
+      newWindow.document.write('<html><body>' + divToPrint.innerHTML + '</body></html>');
+      newWindow.document.close();
+      newWindow.print();
+    });
+
+
 </script>
 
 

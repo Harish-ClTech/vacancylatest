@@ -95,6 +95,33 @@ class SymbolNumber extends Model
         }
     }
 
+    public static function getApplicantSymbolNumber($post){
+        try{
+            $where = [];
+            if(!empty($post['levelid']))
+                $where['levelid'] = $post['levelid'];
+
+            if(!empty($post['designationid']))
+                $where['designationid'] = $post['designationid']; 
+                
+            if(!empty($post['vacancytypeid']))
+                $where['isinternalvacancy'] = $post['vacancytypeid'];              
+
+            $result  = DB::table('v_locasewa_reports as tbl')
+                        ->selectRaw('tbl.*')
+                        ->where($where)
+                        ->orderBy('englishfullname', 'asc')->get();
+
+            if($result)
+                return $result;
+            else 
+                return [];
+
+        } catch (Exception $e){
+            throw $e;
+        }
+    }
+
 
     //generates symbol numbers
     public static function generateSymbolNumber($post)

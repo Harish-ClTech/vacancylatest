@@ -135,7 +135,6 @@
 
                         <div data-kt-menu-trigger="click" class="menu-item menu-accordion {{ (request()->segment(1) == 'setup' || request()->routeIs('vancacy') || request()->routeIs('user*'))  ? 'hover show' : '' }}">
                             <span class="menu-link">
-
                                 <span class="menu-title">सेटअप</span>
                                 <span class="menu-arrow"></span>
                             </span>
@@ -144,6 +143,14 @@
                                     <a class="menu-link {{ Request::routeIs('vancacy') ? 'active' : '' }}"  href="{{ route('vancacy')}}">
                                         <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
                                         <span class="menu-title">विज्ञापन सेटअप</span>
+                                    </a>
+                                </div>
+                                
+
+                                <div class="menu-item">
+                                    <a class="menu-link {{ Request::routeIs('signaturesetup') ? 'active' : '' }}"  href="{{ route('signaturesetup')}}">
+                                        <span class="menu-bullet"><span class="bullet bullet-dot"></span></span>
+                                        <span class="menu-title">रुजु गर्ने अधिकारी सेटअप</span>
                                     </a>
                                 </div>
 

@@ -101,6 +101,7 @@ class Common extends Model
     public static function getVacancywiseAppliedJobsDetails ($post)
     {
         try {
+
             $cond = ['userid'=>$post['userid']];
             if (!empty($post['designationid'])) {
                 $cond['designationid'] = $post['designationid'];
@@ -111,12 +112,13 @@ class Common extends Model
             //                             ->orderBy('jobapplyid', 'desc')
             //                             ->get();
 
-            $aplicantDetails = DB::table('v_new_applicantreport')
+            $aplicantDetails = DB::table('v_new_aplicantreport')
                                         ->where($cond)
                                         ->orderBy('jobapplyid', 'desc')
                                         ->get();
 
                                         // dd($aplicantDetails);
+            // dd($aplicantDetails);
 
             $groupArray = [];
             $appliedVacancyArray = [];
@@ -135,14 +137,17 @@ class Common extends Model
                     // $groupArray[$aval->jobapplyid][$aval->designation][] = $aval;
                     // $groupArray[$aval->jobapplyid][$aval->designation][] = $aval;
                     // $groupArray[$aval->jobapplyid][$aval->designation][] = $aval;
-                    $groupArray[$aval->jobapplyid]['applyDetails'][$aval->designation]['vacancycanceled']= $aval->vacancycanceled;
-                    $groupArray[$aval->jobapplyid]['applyDetails'][$aval->designation]['appliedstatus']= $aval->appliedstatus;
-                    $groupArray[$aval->jobapplyid]['applyDetails'][$aval->designation]['designationid']= $aval->designationid;
-                    $groupArray[$aval->jobapplyid]['applyDetails'][$aval->designation]['remarks']= $aval->remarks;
-                    $groupArray[$aval->jobapplyid]['applyDetails'][$aval->designation]['feedback']= $aval->feedback;
-                    $groupArray[$aval->jobapplyid]['applyDetails'][$aval->designation]['jobCategories'][$aval->jobcategoryname]['jobcategoryname'] = $aval->jobcategoryname;
-                    $groupArray[$aval->jobapplyid]['applyDetails'][$aval->designation]['jobCategories'][$aval->jobcategoryname]['vacancynumber'] = $aval->vacancynumber;
-                    $groupArray[$aval->jobapplyid]['applyDetails'][$aval->designation]['jobCategories'][$aval->jobcategoryname]['vacancycanceledremarks'] = $aval->vacancycanceledremarks;
+                    $groupArray[$aval->jobapplyid]['applyDetails'][$aval->designation][$aval->isinternalvacancy]['vacancycanceled']= $aval->vacancycanceled;
+                    $groupArray[$aval->jobapplyid]['applyDetails'][$aval->designation][$aval->isinternalvacancy]['appliedstatus']= $aval->appliedstatus;
+                    $groupArray[$aval->jobapplyid]['applyDetails'][$aval->designation][$aval->isinternalvacancy]['designationid']= $aval->designationid;
+                    $groupArray[$aval->jobapplyid]['applyDetails'][$aval->designation][$aval->isinternalvacancy]['designation']= $aval->designation;
+                    $groupArray[$aval->jobapplyid]['applyDetails'][$aval->designation][$aval->isinternalvacancy]['symbolnumber']= $aval->symbolnumber;
+                    $groupArray[$aval->jobapplyid]['applyDetails'][$aval->designation][$aval->isinternalvacancy]['examcentername']= $aval->examcentername;
+                    $groupArray[$aval->jobapplyid]['applyDetails'][$aval->designation][$aval->isinternalvacancy]['remarks']= $aval->remarks;
+                    $groupArray[$aval->jobapplyid]['applyDetails'][$aval->designation][$aval->isinternalvacancy]['feedback']= $aval->feedback;
+                    $groupArray[$aval->jobapplyid]['applyDetails'][$aval->designation][$aval->isinternalvacancy]['jobCategories'][$aval->jobcategoryname]['jobcategoryname'] = $aval->jobcategoryname;
+                    $groupArray[$aval->jobapplyid]['applyDetails'][$aval->designation][$aval->isinternalvacancy]['jobCategories'][$aval->jobcategoryname]['vacancynumber'] = $aval->vacancynumber;
+                    $groupArray[$aval->jobapplyid]['applyDetails'][$aval->designation][$aval->isinternalvacancy]['jobCategories'][$aval->jobcategoryname]['vacancycanceledremarks'] = $aval->vacancycanceledremarks;
                 }
                 // foreach($aplicantDetails as $gkey=>$gval){
                 //     $appliedVacancyArray[$gval->designation][$gval->vacancynumber]['vacancynumber'] = $gval->vacancynumber;
@@ -154,7 +159,9 @@ class Common extends Model
                 // $applicantDetailsArray['appliedVacancyArray'] = $appliedVacancyArray;
                 
                 // return (object)$groupArray;
+                // dd($groupArray);
                 return $groupArray;
+
             } else { 
                 return [];
             }
@@ -361,11 +368,17 @@ class Common extends Model
     public static function getLevels ($post)
     {
         try {
-            $sql = DB::table('vacancies as v')
-                        ->select('v.vacancynumber', 'v.level')
-                        ->where([['v.status', '=', 'Y'], ['fiscalyearid', '=', $post['fiscalyearid']]]);
+            // DB::enableQueryLog();
 
-            $result = $sql->get()->groupBy('level');
+            $sql = DB::table('vacancies as v')
+                        ->select('l.labelname', 'l.id')
+                        ->join('levels as l', 'l.id', '=', 'v.level')
+                        ->where([['v.status', '=', 'Y'], ['fiscalyearid', '=', $post['fiscalyearid']]])
+                        ->groupBy('l.id','l.labelname')
+                        ->orderByRaw("CAST(l.labelname AS UNSIGNED) asc");
+
+            $result = $sql->get();
+            // dd(DB::getQueryLog());
 
             if (!empty($result)) {
                 return $result;

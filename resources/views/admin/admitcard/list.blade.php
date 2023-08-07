@@ -35,6 +35,7 @@
             <!--begin::Container-->
             <div id="kt_content_container" class="container-xxl">
                 <!--begin::Card-->
+                @include('admin.layouts.alert')
                 <div class="card">
                     <div class="row p-3">
                         {{-- <div class="col-md-3 fv-row">
@@ -79,7 +80,14 @@
                             </select>
                         </div>
 
-                       
+                        <div class="col-md-4 fv-row" id="vacancytypeDiv">
+                            <label for="vacancytype" class="required fs-6  mb-2" style="color:#3C2784;font-weight:600;"">विज्ञापन प्रकार</label>
+                            <select id="vacancytype"  name="vacancytype" class="form-select form_input  select2 form-select-solid" style="padding: 4px;">
+                                <option value="" selected>विज्ञापन प्रकार छान्नुहोस्</option>
+                                <option value="N">खुला प्र.</option>
+                                <option value="Y">आ.प्र.</option>
+                            </select>
+                        </div>           
                         <div class="col-md-2 fv-row">
                             <div class="d-flex justify-content-end mt-3">
                                 <button type="button" id="viewAdmitCard" class="pull-right" style="background: #3C2784;
@@ -89,7 +97,7 @@
     font-weight: 600;
     border-radius: 3px;
     float: right; ">
-                                    <i class="fa fa-refresh"></i>लोड गर्नुहोस्
+                                    <i class="fa fa-refresh"></i> लोड गर्नुहोस्
                                 </button>
                             </div>
                         </div>
@@ -117,14 +125,17 @@
                 // var levelid = $('#level').val();
                 //  var yearid = $('#year').val();
                 var designationid = $('#designation').val();
-                if(!designationid){
-                    $.notify('पद छान्नुहोस् ।', 'error');
+                var vacancytype = $('#vacancytype').val();
+                if(!designationid || !vacancytype){
+                    $.notify('अनिवार्य क्षेत्रहरू छान्नुहोस् ।', 'error');
                     return false;
                 }
+
                 var url = baseUrl + '/getadmitcartusers';
                 var infoData = {
                     // yearid: yearid,
                     designationid: designationid,
+                    vacancytype: vacancytype,
                     // levelid: levelid
                 };
                 $.post(url, infoData, function(response) {
@@ -138,9 +149,10 @@
                 // var levelid = $('#level').val();
                 // var yearid = $('#year').val();
                 var designationid = $('#designation').val();
+                var vacancytype = $('#vacancytype').val();
                 var url = baseUrl + '/admit-card/print';
         
-                window.open(url + "?designationid=" + designationid);             
+                window.open(url + "?designationid=" + designationid + '&isinternalvacancy=' + vacancytype);             
             });
 
             $(document).off('click',  '.printAdmitCard');
@@ -149,10 +161,12 @@
                 // var yearid = $('#year').val();
                 var userid = $(this).data('userid');
                 var designationid = $(this).data('designationid');
+                var isinternalvacancy = $(this).data('isinternalvacancy');
                 var url = baseUrl + '/admit-card/print';
         
-                window.open(url + "?userid="+userid+"&designationid=" + designationid);             
+                window.open(url + "?userid="+userid+"&designationid=" + designationid+"&isinternalvacancy=" + isinternalvacancy);             
             });
+           
         });
     </script>
 

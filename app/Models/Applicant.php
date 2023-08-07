@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Jobs\SendEmailJob;
 use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -174,11 +175,13 @@ class Applicant extends Model
             }
             $message = self::messageHtml($post);
 
+            $emaildata['email']       = $user->email;
             $emaildata['message']       = $message;
             $emaildata['autotext']      = $post['autotext'];
             $emaildata['applicantname'] = "Dear Mr./Ms. ".$post['applicantname'];
 	        $emaildata['remarks']       =  $post['remarks'];
-            Mail::to($user->email)->send(new Result($emaildata));
+            dispatch(new SendEmailJob($emaildata));
+            // Mail::to($user->email)->send(new Result($emaildata));
             DB::commit();
             return true;
 
@@ -187,7 +190,6 @@ class Applicant extends Model
             throw $e;
         }
     }
-
 
     // get registered candidate details
     public static function getCandidatesDetails ($post) 
@@ -731,10 +733,13 @@ class Applicant extends Model
             $post['status'] = 'Rejected';
             $message = self::messageHtml($post);
 
+            $emaildata['email']       = $user->email;
             $emaildata['message']       = $message;
             $emaildata['applicantname'] = "Dear Mr./Ms. ".$post['applicantname'];
 	        $emaildata['remarks']       =  $post['vacancycanceledremarks'];
-            Mail::to($user->email)->send(new Result($emaildata));
+            dispatch(new SendEmailJob($emaildata));
+
+            // Mail::to($user->email)->send(new Result($emaildata));
 
             DB::commit();
             return true;
@@ -854,7 +859,6 @@ class Applicant extends Model
         }
     }
 
-
     // get specific training detail
     public static function getTrainingDetail ($userid)
     {
@@ -870,7 +874,6 @@ class Applicant extends Model
             throw $e;
         }
     }
-
 
     // get specific experience detail
     public static function getExperienceDetail ($userid)
@@ -888,7 +891,6 @@ class Applicant extends Model
         }
     }
 
-
     // get specifit photo detail
     public static function getPhotoDetail ($userid) 
     {
@@ -904,7 +906,6 @@ class Applicant extends Model
             throw $e;
         }
     }
-
 
     // get specific 
     public static function getDocumentDetail ($userid) 
@@ -952,7 +953,6 @@ class Applicant extends Model
         }
     }
 
-
     // get extra detail 
     public static function getExtraDetail ($userid) 
     {
@@ -964,7 +964,6 @@ class Applicant extends Model
             throw $e;
         } 
     }
-
 
     // modify application 
     public static function getModifyApplication ($post) 
@@ -1010,7 +1009,6 @@ class Applicant extends Model
         }
     }
 
-
     // get min/max
     public static function getMinMax ($post) 
     {
@@ -1046,6 +1044,64 @@ class Applicant extends Model
             return $result;
 
         } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    // Get PSC Report
+    public static function getPscReprt($post){
+        try{
+            $get = $post;
+            foreach ($get as $key => $value) {
+                $get[$key] = trim(strtolower(htmlspecialchars($get[$key], ENT_QUOTES)));
+            }
+
+            $limit = 10;
+            $offset = 0;
+            if (!empty($get["iDisplayLength"])) {
+                $limit = $get['iDisplayLength'];
+                $offset = $get["iDisplayStart"];
+            }
+            
+            $where = [];
+            if(!empty($get['sSearch_8']))
+                $where['gender'] = $get['sSearch_8'];
+
+            if(!empty($get['sSearch_10']))
+                $where['designationtitle'] = $get['sSearch_10']; 
+                
+            if(!empty($get['sSearch_11']))
+                $where['labelname'] = $get['sSearch_11'];
+
+            if(!empty($get['sSearch_14']))
+                $where['isinternalvacancy'] = $get['sSearch_14'];                
+
+            $query  = DB::table('v_locasewa_reports as tbl')
+                        ->selectRaw('COUNT(*) OVER() AS totalrecs, tbl.*')
+                        ->where($where);
+
+                        if(!empty($get['sSearch_3'])){
+                            $query->whereRaw("LOWER(englishfullname) like '%" . strtolower($get['sSearch_3']). "%'");
+                        }
+
+                        if($limit >= 0) {
+                            $query->offset($offset);
+                            $query->limit($limit);
+                        }
+
+            $result = $query->orderBy('englishfullname', 'asc')->get();                 
+
+            if(!empty($result[0]->totalrecs)){
+                $ndata = $result;              
+                $ndata['totalrecs'] = $result[0]->totalrecs ? $result[0]->totalrecs : 0;
+                $ndata['filtereddata'] = $result[0]->totalrecs ? $result[0]->totalrecs : 0;
+            } else {
+                $ndata = [];
+                $ndata['totalrecs'] = 0;
+                $ndata['filtereddata'] = 0;
+            }
+            return $ndata;
+        } catch(Exception $e) {
             throw $e;
         }
     }

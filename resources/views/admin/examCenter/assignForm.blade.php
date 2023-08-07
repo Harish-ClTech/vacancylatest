@@ -117,7 +117,7 @@
                   $('#levelid').html("");
                   $('#levelid').html("<option selected>तह छान्नुहोस्..</option>");
                   $.each(response, function(key, val){
-                        $('#levelid').append("<option value='"+key+"'>"+key+"</option>");
+                        $('#levelid').append("<option value='"+val.id+"'>"+val.labelname+"</option>");
                   });
             });
       });

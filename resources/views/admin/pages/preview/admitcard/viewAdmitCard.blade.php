@@ -398,31 +398,39 @@
     <section class="sanchaya_admit_card">
         <div class="top_header">
             <div class="card_logo">
-                <img src="{{ asset('adminAssets/assets/images/log2.png') }}">
+                <img src="{{ asset('adminAssets/assets/images/log_bk.png') }}">
             </div>
             <div class="head_txt">
-                <h4>कर्मचारी सञ्चय कोष</h4>
+                <h4>नागरिक लगानी कोष</h4>
                 <h5>प्रवेश - पत्र</h5>
             </div>
             <div class="rt_img_wrapper">
                 <div class="signature">
                     @if(!empty($admitCard->cropped_signature))
                         <img class="" id="signature" alt="Applicant's Signature" src="{{asset('uploads/cropped/signature/'.@$admitCard->cropped_signature)}}">
-                        <button class="btn btn-sm undoEdit" id="editUndoSignature" data-editid="signature" title="Load Original Image"  type="button" ><i class="fa fa-undo"></i> </button>
+                        @if(empty($admitCard->symbolnumber))
+                            <button class="btn btn-sm undoEdit" id="editUndoSignature" data-editid="signature" title="Load Original Image"  type="button" ><i class="fa fa-undo"></i> </button>
+                        @endif
                     @else
                         <img class="" id="signature" alt="Applicant's Signature" src="{{asset('uploads/document/signature/'.@$admitCard->signature)}}">
                     @endif
-                    <button class="btn btn-sm" id="editSignature" data-id="signature" title="Edit Signature" type="button" ><i class="fa fa-edit"></i> </button>
+                    @if(empty($admitCard->symbolnumber))
+                        <button class="btn btn-sm" id="editSignature" data-id="signature" title="Edit Signature" type="button" ><i class="fa fa-edit"></i> </button>
+                    @endif
 
                 </div>
                 <div class="user_img">
                     @if(!empty($admitCard->cropped_photograph))
                         <img alt="Applicant's Photo" id="photograph" src="{{asset('uploads/cropped/photograph/'.@$admitCard->cropped_photograph)}}">
-                        <button class="btn btn-sm undoEdit" data-editid="photograph" title="Load Original Image"  type="button" ><i class="fa fa-undo"></i> </button>
+                        @if(empty($admitCard->symbolnumber))
+                            <button class="btn btn-sm undoEdit" data-editid="photograph" title="Load Original Image"  type="button" ><i class="fa fa-undo"></i> </button>
+                        @endif
                     @else
                         <img alt="Applicant's Photo" id="photograph" src="{{asset('uploads/document/photography/'.@$admitCard->photography)}}" >
                     @endif
-                    <button class="btn btn-sm" id="editPhotograph" data-id="photograph" title="Edit Photograph" type="button" ><i class="fa fa-edit"></i> </button>
+                    @if(empty($admitCard->symbolnumber))
+                        <button class="btn btn-sm" id="editPhotograph" data-id="photograph" title="Edit Photograph" type="button" ><i class="fa fa-edit"></i> </button>
+                    @endif
                 </div>
                 <div class="resized"></div>
             </div>
@@ -430,7 +438,6 @@
         <div class="row text-center sample">
             <b>SAMPLE FILE</b>
         </div>
-
         <div class="card_content_wrapper">
             <div class="card_flx">
                 <div class="lt_ct">
@@ -459,15 +466,15 @@
                             </tr>
                             <tr>
                                 <td style="width:35%;">(ङ) &nbsp; पद : </td>
-                                <td>{{@$admitCard->designation}}</td>
+                                <td>{{@$admitCard->designation}} {{ (!empty($admitCard->isinternalvacancy) && $admitCard->isinternalvacancy=='Y')? '(आ.प्र.)':''}} </td>
                             </tr>
                             <tr>
                                 <td style="width:35%;">(च) &nbsp;परीक्षा केन्द्र:</td>
-                                <td>{{@$admitCard->examcenter}} </td>
+                                <td>{{@$admitCard->examcentername}} </td>
                             </tr>
                             <tr>
                                 <td style="width:35%;">(च) &nbsp; रोल नं.</td>
-                                <td>{{@$admitCard->rollnumber}} </td>
+                                <td>{{@$admitCard->symbolnumber}} </td>
                             </tr>
 
                         </tbody>
@@ -501,22 +508,30 @@
                 <div class="citizenship_card lt_float">
                     @if(!empty($admitCard->cropped_citizenshipfront))
                         <img class="" id="citizenshipfront" alt="Citizenship Front" src="{{asset('uploads/cropped/citizenshipfront/'.@$admitCard->cropped_citizenshipfront)}}">
-                        <button class="btn btn-sm undoEdit" title="Load Original Image" data-editid="citizenshipfront" type="button" ><i class="fa fa-undo"></i> </button>
+                        @if(empty($admitCard->symbolnumber))
+                            <button class="btn btn-sm undoEdit" title="Load Original Image" data-editid="citizenshipfront" type="button" ><i class="fa fa-undo"></i> </button>
+                        @endif
                     @else
                         <img class="" id="citizenshipfront" alt="Citizenship Front" src="{{asset('uploads/document/citizenshipfront/'.@$admitCard->citizenshipfront)}}">
                     @endif
-                    <button class="btn btn-sm editCitizenship" id="editCitizenshipFront" title="Edit Citizenship Front" data-id="citizenshipfront" type="button" ><i class="fa fa-edit"></i> </button>
+                    @if(empty($admitCard->symbolnumber))
+                        <button class="btn btn-sm editCitizenship" id="editCitizenshipFront" title="Edit Citizenship Front" data-id="citizenshipfront" type="button" ><i class="fa fa-edit"></i> </button>
+                    @endif
                 </div>
             @endif
             @if(!empty($admitCard->citizenshipback))
                 <div class="citizenship_card rt_float">
                     @if(!empty($admitCard->cropped_citizenshipback))
                         <img class="" id="citizenshipback" alt="Citizenship Back" src="{{asset('uploads/cropped/citizenshipback/'.@$admitCard->cropped_citizenshipback)}}">
-                        <button class="btn btn-sm undoEdit"  title="Load Original Image" data-editid="citizenshipback" type="button" ><i class="fa fa-undo"></i> </button>
+                        @if(empty($admitCard->symbolnumber))
+                            <button class="btn btn-sm undoEdit"  title="Load Original Image" data-editid="citizenshipback" type="button" ><i class="fa fa-undo"></i> </button>
+                        @endif
                     @else
                         <img class="" id="citizenshipback" alt="Citizenship Back" src="{{asset('uploads/document/citizenshipback/'.@$admitCard->citizenshipback)}}">
                     @endif
-                    <button class="btn btn-sm editCitizenship" id="editCitizenshipBack" title="Edit Citizenship Back" data-id="citizenshipback" type="button" ><i class="fa fa-edit"></i> </button>
+                    @if(empty($admitCard->symbolnumber))
+                        <button class="btn btn-sm editCitizenship" id="editCitizenshipBack" title="Edit Citizenship Back" data-id="citizenshipback" type="button" ><i class="fa fa-edit"></i> </button>
+                    @endif
                 </div>
             @endif
         </div>
@@ -540,14 +555,17 @@
                 </div> -->
                 <div class="rt_dt">
                     <div class="txt_cntr">
-                            <div class="signature_official">
-                                <img class="" src="{{ asset('adminAssets/assets/images/sign.png') }}">
-                            </div>
+                        <div class="signature_official">
+                            @if(!empty($signatureSetupInfo['authorizedSignatureSrc']))
+                                    <img class="" src="{{ $signatureSetupInfo['authorizedSignatureSrc'] }}">
+                            @endif
+                        </div>
                         <h5 style="font-weight: normal; margin-top: 0px; margin-bottom: 15px; line-height: 0px;">..........................................</h5>
                         <h5>जारी गने अधिकृतको </h5>
                         <h5>दस्तखत : </h5>
-                        <h5>नाम :  <span></span></h5>
-                        <h5>मिति : <span></span></h5>
+                        <h5>नाम :  <span>{{ !empty($signatureSetupInfo['authorizedOfficer'])? $signatureSetupInfo['authorizedOfficer']: ''}}</span></h5>
+                        <h5>मिति : <span>{{ !empty($signatureSetupInfo['signatureDate'])? en_to_nep($signatureSetupInfo['signatureDate']): ''}}</span></h5>
+
                     </div>
                 </div>
             </div>
@@ -653,12 +671,13 @@
 <script type="text/javascript">
     var symbol = "{{!empty($admitCard->symbolnumber)}}";
     var degid = "{{$admitCard->designationid}}";
+    var isinternalvacancy = "{{$isinternalvacancy}}";   
     if(!symbol){
         $('.sample').show();
         $('#admitCardModal .print_btn_wrap').html('<p class="text-danger text-bold mt-3">यो पेज Imageहरु Edit गर्ने प्रयोजनका लागि तयार पारिएको हो । यो प्रकृया सकिए पश्चात यस स्थानमा प्रवेश पत्र प्रिन्ट गर्ने Option पाउनुहुनेछ । </p>');
     }else{
         $('.sample').hide();
-        $('#admitCardModal .print_btn_wrap').html('<a href="javascript:;" id="printAdmitCardBtn" data-data="'+degid+'" class="btn btn-danger"> <i class="fa fa-print" aria-hidden="true"></i> Print</a>');
+        $('#admitCardModal .print_btn_wrap').html('<a href="javascript:;" id="printAdmitCardBtn" data-data="'+degid+'" data-isinternalvacancy="'+isinternalvacancy+'" class="btn btn-danger"> <i class="fa fa-print" aria-hidden="true"></i> Print</a>');
     }
 
     function getCropModal(){
@@ -809,9 +828,10 @@
     $('#printAdmitCardBtn').on('click', function(e){ 
         e.preventDefault();
         var data = $(this).data('data');
-        var infoData = {data:data};
+        var isinternalvacancy = $(this).data('isinternalvacancy');
+        var infoData = { data : data, isinternalvacancy : isinternalvacancy };
         url = baseUrl + '/printapplicantadmitcard?';
-        window.location.href = url + 'data='+data;
+        window.location.href = url + 'data='+data+'&vacancystatus='+isinternalvacancy;
     });
 
     $(document).on('click', '.closeButton', function(e) {

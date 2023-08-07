@@ -6,11 +6,12 @@
 
       <style>
             .sanchaya_admit_card {
-            /* padding: 10px 30px; */
-            height: 1480px;
-            max-height: 100%;
-            margin-bottom: 35px;
-            /* border: 1px solid; */
+                  padding: 30px;
+                  height: 1400px;
+                  max-height: 100%;
+                  margin-bottom: 35px;
+                  page-break-inside: avoid;
+                  /* border: 1px solid; */
             }
 
             .sanchaya_admit_card .top_header {
@@ -254,6 +255,11 @@
             }
             
       </style>
+      <script>
+            window.onload = function() {
+                  window.print();
+            };
+      </script>
 </head>
 <body>
       @foreach($data as $row)
@@ -261,5 +267,6 @@
                   {{$row}}
             </page>
       @endforeach
+   
 </body>
 </html>

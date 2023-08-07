@@ -34,7 +34,7 @@
 											<th>क्रम संख्या </th>
 											<th>नाम</th>
 											<th>पद</th>
-											<th>Aprove Status</th>
+											<th>रोलनम्बर</th>
 											<th width="10%">Action</th>
 									</tr>
 
@@ -55,6 +55,7 @@
   var yearid= "{{@$post['yearid']}}";
   var levelid= "{{@$post['levelid']}}";
   var designationid= "{{@$post['designationid']}}";
+  var vacancytype= "{{@$post['vacancytype']}}";
   
   $(document).ready(function() {
     admitCardTable = $('#admitCardTable').dataTable({
@@ -80,6 +81,7 @@
           "fnServerParams": function (aoData) {
             aoData.push({ "name": "yearid", "value":yearid},
                           {"name": "levelid", "value":levelid},
+                          {"name": "vacancytype", "value":vacancytype},
                           {"name": "designationid", "value":designationid});
           },
       "aoColumnDefs": [{
@@ -96,7 +98,7 @@
           "data": "designation"
         },
         {
-          "data": "appliedstatus"
+          "data": "symbolnumber"
         },
         {
           "data": "action"
@@ -167,7 +169,8 @@
             });
             return false;
           }
-          window.open(url + "?designationid=" + designationid+"&symbol_from="+ symbol_no_from+"&symbol_to="+symbol_no_to);             
+          $('#loading').hide();
+          window.open(url + "?designationid=" + designationid+"&isinternalvacancy="+vacancytype+"&symbol_from="+ symbol_no_from+"&symbol_to="+symbol_no_to);             
         }
       
       })()

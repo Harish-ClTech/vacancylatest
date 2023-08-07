@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>प्रवेश पत्र | कर्मचारी सञ्चय कोष</title>
+        <title>प्रवेश पत्र | नागरिक लगानी कोष</title>
         <link rel="stylesheet" href="{{public_path('adminAssets/assets/css/bootstrap/css/bootstrap.min.css')}}">
 
         <style  type="text/css">
@@ -328,7 +328,7 @@
                         <img src="{{ public_path('adminAssets/assets/images/log2.png') }}">
                     </div>
                     <div class="head_txt">
-                        <h4>कर्मचारी सञ्चय कोष</h4>
+                        <h4>नागरिक लगानी कोष</h4>
                         <h5>प्रवेश - पत्र</h5>
                     </div>
                     <div class="rt_img_wrapper">
@@ -386,7 +386,7 @@
                                     </tr>
                                     <tr>
                                         <td style="width:35%;">(च) &nbsp; रोल नं.</td>
-                                        <td>{{@$admitCard->rollnumber}} </td>
+                                        <td>{{@$admitCard->symbolnumber}} </td>
                                     </tr>
 
                                 </tbody>
